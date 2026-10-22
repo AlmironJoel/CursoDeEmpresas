@@ -1,147 +1,124 @@
-# BDCursosEmpresas
+# DB_Cursos — Plataforma de Capacitaciones para Empresas
 
-Base de datos para una plataforma de gestión de cursos corporativos. Permite administrar empresas, usuarios, suscripciones, cursos, inscripciones, evaluaciones y certificados.
+Base de datos relacional para la gestión de cursos corporativos, desarrollada en **SQL Server** como Trabajo Práctico Integrador para la materia **Base de Datos II (UTN FRGP)**.
 
----
-
-## Esquema de Tablas
-
-### Roles
-Almacena los roles disponibles que pueden tener las empresas dentro de la plataforma.
-
-| Atributo | Tipo de Dato | Descripción |
-|---|---|---|
-| IDRol | INT PRIMARY KEY IDENTITY(1,1) | Identificador único del rol. |
-| nombre | VARCHAR(50) NOT NULL | Nombre del rol. |
-| descripcion | VARCHAR(255) | Descripción detallada del rol. |
+El sistema permite administrar empresas, usuarios, tipos de suscripción, cursos, archivos de estudio, evaluaciones, resultados, certificados e historial de bajas.
 
 ---
 
-### Empresas
-Registra las empresas que utilizan la plataforma y el rol que desempeñan en ella.
-
-| Atributo | Tipo de Dato | Descripción |
-|---|---|---|
-| IDEmpresa | INT PRIMARY KEY IDENTITY(1,1) | Identificador único de la empresa. |
-| nombre | VARCHAR(255) NOT NULL | Nombre de la empresa. |
-| IDRol | INT NOT NULL | Rol asignado a la empresa. Referencia a `Roles`. |
+## 👥 Integrantes del Equipo
+* **Almiron, Joel Brian** - Legajo N°: 32378
+* **De Grazia, Mariel Alejandra** - Legajo N°: 25874
+* **Corbacho, Juan Ignacio** - Legajo N°: 32634
+* **Re, Uziel** - Legajo N°: 33080
 
 ---
 
-### TiposSuscripcion
-Catálogo de los tipos de suscripción disponibles en la plataforma.
+## Esquema de Tablas y Restricciones
 
-| Atributo | Tipo de Dato | Descripción |
-|---|---|---|
-| IDTipoSuscripcion | INT PRIMARY KEY IDENTITY(1,1) | Identificador único del tipo de suscripción. |
-| nombre | VARCHAR(50) NOT NULL | Nombre del tipo de suscripción. |
-| Detalle | VARCHAR(100) NOT NULL | Descripción detallada del tipo de suscripción. |
-| Duracion | INT | Duración en días. `NULL` indica sin vencimiento. |
-| Precio | MONEY NOT NULL | Precio del tipo de suscripción. |
+### 1. Roles
+Define los perfiles de acceso en el sistema (ej. Administrador, Empresa, Alumno).
+* `IDRol` (INT, PK, IDENTITY)
+* `Nombre` (VARCHAR(50), UNIQUE, NOT NULL)
+* `Descripcion` (VARCHAR(255), NULL)
 
----
+### 2. TipoSuscripcion
+Planes disponibles para los usuarios de la plataforma.
+* `IDTipoSuscripcion` (INT, PK, IDENTITY)
+* `nombre` (VARCHAR(50), UNIQUE, NOT NULL)
+* `detalle` (VARCHAR(100), NULL)
+* `duracion` (INT, DEFAULT 30, CHECK >= 0)
+* `precio` (INT, CHECK >= 0)
 
-### USUARIO
-Contiene la información de los usuarios registrados en la plataforma.
+### 3. Usuario
+Usuarios registrados en la plataforma (incluye alumnos y empresas).
+* `IDUsuario` (INT, PK, IDENTITY)
+* `nombre` (VARCHAR(50), NOT NULL)
+* `apellido` (VARCHAR(50), NOT NULL)
+* `email` (VARCHAR(50), UNIQUE, NOT NULL)
+* `contrasenia` (VARCHAR(50), CHECK LEN > 5)
+* `fechaDeInscripcion` (DATE, DEFAULT GETDATE())
+* `IDRol` (INT, FK -> Roles)
 
-| Atributo | Tipo de Dato | Descripción |
-|---|---|---|
-| IDUsuario | INT PRIMARY KEY IDENTITY(1,1) | Identificador único del usuario. |
-| nombre | VARCHAR(50) | Nombre del usuario. |
-| apellido | VARCHAR(50) | Apellido del usuario. |
-| mail | VARCHAR(100) | Correo electrónico del usuario. |
-| contrasena | VARCHAR(255) | Hash de la contraseña del usuario. |
-| FechaDeInscripcion | DATE | Fecha en la que el usuario se registró en la plataforma. |
+### 4. Suscripcion
+Historial y estado de las suscripciones contratadas.
+* `IDSuscripcion` (INT, PK, IDENTITY)
+* `IDTipoSuscripcion` (INT, FK -> TipoSuscripcion)
+* `IDUsuario` (INT, FK -> Usuario)
+* `fechaDeInscripcion` (DATE, DEFAULT GETDATE())
+* `fechaDeFinalizacion` (DATE, NOT NULL)
+* `activa` (BIT, DEFAULT 1)
 
----
+### 5. Curso
+Cursos publicados por usuarios con perfil Empresa.
+* `IDCurso` (INT, PK, IDENTITY)
+* `IDUsuarioEmpresa` (INT, FK -> Usuario)
+* `nombre` (VARCHAR(50), NOT NULL)
+* `descripcion` (VARCHAR(250), NOT NULL)
 
-### Suscripcion
-Registra las suscripciones activas e históricas de cada usuario.
+### 6. TipoArchivo
+Formatos soportados para el material didáctico (PDF, Video, etc.).
+* `IDTipoArchivo` (INT, PK, IDENTITY)
+* `nombre` (VARCHAR(50), UNIQUE, NOT NULL)
 
-| Atributo | Tipo de Dato | Descripción |
-|---|---|---|
-| IDSuscripcion | INT PRIMARY KEY IDENTITY(1,1) | Identificador único de la suscripción. |
-| IDTipoSuscripcion | INT NOT NULL | Tipo de suscripción contratado. Referencia a `TiposSuscripcion`. |
-| IDUsuario | INT NOT NULL | Usuario al que pertenece la suscripción. Referencia a `USUARIO`. |
-| FechaInicio | DATE DEFAULT GETDATE() | Fecha de inicio de la suscripción. |
-| FechaFinalizacion | DATE | Fecha de finalización. `NULL` si no vence. |
-| Activa | BIT DEFAULT 0 | Indica si la suscripción se encuentra activa. |
+### 7. Archivo
+Materiales de estudio pertenecientes a cada curso.
+* `IDArchivo` (INT, PK, IDENTITY)
+* `IDCurso` (INT, FK -> Curso)
+* `nombre` (VARCHAR(50), NOT NULL)
+* `IDTipoArchivo` (INT, FK -> TipoArchivo)
+* `ruta` (VARCHAR(255), UNIQUE, NOT NULL)
 
----
+### 8. ProgresoArchivo
+Seguimiento del avance de un usuario sobre cada archivo de un curso.
+* `IDUsuario` (INT, PK, FK -> Usuario)
+* `IDArchivo` (INT, PK, FK -> Archivo)
+* `completado` (BIT, DEFAULT 0)
 
-### Curso
-Almacena los cursos ofrecidos por las empresas dentro de la plataforma.
+### 9. Evaluacion
+Exámenes o evaluaciones configuradas para cada curso.
+* `IDEvaluacion` (INT, PK, IDENTITY)
+* `IDCurso` (INT, FK -> Curso)
+* `titulo` (VARCHAR(50))
+* `PuntajeAprobacion` (INT, CHECK BETWEEN 0 AND 100)
 
-| Atributo | Tipo de Dato | Descripción |
-|---|---|---|
-| IDCurso | INT PRIMARY KEY IDENTITY(1,1) | Identificador único del curso. |
-| nombre | VARCHAR(100) NOT NULL | Nombre del curso. |
-| descripcion | VARCHAR(250) | Descripción del contenido del curso. |
-| IDEmpresa | INT NOT NULL | Empresa que ofrece el curso. Referencia a `Empresas`. |
+### 10. ResultadoEvaluacion
+Rendiciones de exámenes realizadas por los alumnos.
+* `IDResultado` (INT, PK, IDENTITY)
+* `IDEvaluacion` (INT, FK -> Evaluacion)
+* `IDUsuario` (INT, FK -> Usuario)
+* `PuntajeObtenido` (INT, CHECK BETWEEN 0 AND 100)
+* `fecha` (DATE, DEFAULT GETDATE())
+* `aprobacion` (BIT, DEFAULT 0)
 
----
+### 11. Certificado
+Comprobantes automáticos generados tras aprobar una evaluación.
+* `IDCertificado` (INT, PK, IDENTITY)
+* `IDResultado` (INT, UNIQUE, FK -> ResultadoEvaluacion)
+* `fechaEmision` (DATE, DEFAULT GETDATE())
 
-### Archivo
-Registra los archivos asociados a cada curso y el progreso del usuario sobre ellos.
+### 12. Inscripcion
+Registro de alumnos inscriptos a cursos.
+* `IDInscripcion` (INT, PK, IDENTITY)
+* `IDUsuario` (INT, FK -> Usuario)
+* `IDCurso` (INT, FK -> Curso)
+* `fechaDeInscripcion` (DATE, DEFAULT GETDATE())
+* `completado` (BIT, DEFAULT 0)
+* **Restricción:** UNIQUE (`IDUsuario`, `IDCurso`) para impedir inscripciones duplicadas.
 
-| Atributo | Tipo de Dato | Descripción |
-|---|---|---|
-| IDArchivo | INT PRIMARY KEY IDENTITY(1,1) | Identificador único del archivo. |
-| IDCurso | INT NOT NULL | Curso al que pertenece el archivo. Referencia a `Curso`. |
-| IDUsuario | INT NOT NULL | Usuario asociado al archivo. Referencia a `USUARIO`. |
-| Completado | BIT DEFAULT 0 | Indica si el usuario completó el archivo. |
-
----
-
-### Inscripcion
-Registra las inscripciones de los usuarios a los cursos disponibles.
-
-| Atributo | Tipo de Dato | Descripción |
-|---|---|---|
-| IDInscripcion | INT PRIMARY KEY IDENTITY(1,1) | Identificador único de la inscripción. |
-| IDUsuario | INT NOT NULL | Usuario inscripto. Referencia a `USUARIO`. |
-| IDCurso | INT NOT NULL | Curso en el que se inscribió el usuario. Referencia a `Curso`. |
-| Completado | BIT NOT NULL DEFAULT 0 | Indica si el usuario completó el curso. |
-
----
-
-### Evaluacion
-Almacena las evaluaciones asociadas a cada curso.
-
-| Atributo | Tipo de Dato | Descripción |
-|---|---|---|
-| IDEvaluacion | INT PRIMARY KEY IDENTITY(1,1) | Identificador único de la evaluación. |
-| IDCurso | INT NOT NULL | Curso al que pertenece la evaluación. Referencia a `Curso`. |
-| Titulo | VARCHAR(50) | Título de la evaluación. |
-| Puntaje | INT | Puntaje máximo de la evaluación. |
-
----
-
-### ResultadoEvaluacion
-Registra el resultado obtenido por cada usuario en cada evaluación.
-
-| Atributo | Tipo de Dato | Descripción |
-|---|---|---|
-| IDResultado | INT PRIMARY KEY IDENTITY(1,1) | Identificador único del resultado. |
-| IDEvaluacion | INT NOT NULL | Evaluación rendida. Referencia a `Evaluacion`. |
-| IDUsuario | INT NOT NULL | Usuario que rindió la evaluación. Referencia a `USUARIO`. |
-| Aprobado | BIT DEFAULT 0 | Indica si el usuario aprobó la evaluación. |
-
----
-
-### Certificados
-Registra los certificados emitidos a los usuarios que completaron y aprobaron un curso.
-
-| Atributo | Tipo de Dato | Descripción |
-|---|---|---|
-| IDCertificado | INT PRIMARY KEY IDENTITY(1,1) | Identificador único del certificado. |
-| IDCurso | INT NOT NULL | Curso por el que se emite el certificado. Referencia a `Curso`. |
-| IDResultado | INT NOT NULL | Resultado que habilita el certificado. Referencia a `ResultadoEvaluacion`. |
-| IDUsuario | INT NOT NULL | Usuario al que se emite el certificado. Referencia a `USUARIO`. |
-| FechaDeEmision | DATE DEFAULT GETDATE() | Fecha en la que se emitió el certificado. |
+### 13. HistorialBajas
+Tabla de auditoría para registrar desinscripciones de alumnos.
+* `IDHistorial` (INT, PK, IDENTITY)
+* `IDUsuario` (INT, NOT NULL)
+* `IDCurso` (INT, NOT NULL)
+* `FechaBaja` (DATETIME, DEFAULT GETDATE())
+* `UsuarioSistema` (VARCHAR(100), DEFAULT SUSER_SNAME())
+* `Motivo` (VARCHAR(255), NULL)
 
 ---
 
-## Orden de creación de tablas
+## 🛠️ Estructura del Repositorio
 
-El orden respeta las dependencias entre tablas (sin ciclos):
+* `BD_Cursos.sql`: Script completo de creación de la base de datos, tablas, relaciones y restricciones.
+* `Insert_BD_Cursos.sql`: Datos de prueba para popular las tablas.
+* `Objetos_BD.sql` *(En desarrollo)*: Vistas, Procedimientos Almacenados, Triggers y Funciones.
