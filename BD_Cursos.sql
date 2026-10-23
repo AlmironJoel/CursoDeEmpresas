@@ -104,7 +104,7 @@ CREATE TABLE Archivo (
     CONSTRAINT PK_Archivo PRIMARY KEY(IDArchivo),
     CONSTRAINT UQ_Archivo_ruta UNIQUE(ruta),
     CONSTRAINT FK_Archivo_Curso FOREIGN KEY (IDCurso) REFERENCES Curso (IDCurso),
-    CONSTRAINT FK_Archivo_TiposArchivo FOREIGN KEY (IDTipoArchivo) REFERENCES TiposArchivos (IDTipoArchivo)
+    CONSTRAINT FK_Archivo_TiposArchivo FOREIGN KEY (IDTipoArchivo) REFERENCES TipoArchivo (IDTipoArchivo)
 );
 
 CREATE TABLE ProgresoArchivo (

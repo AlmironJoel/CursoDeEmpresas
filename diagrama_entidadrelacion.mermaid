@@ -1,0 +1,156 @@
+Table HistorialBajas [headercolor: #175e7a] {
+	IDHistorial int [ pk, increment, not null ]
+	IDUsuario int [ not null ]
+	IDCurso int [ not null ]
+	FechaBaja datetime [ not null, default: `GETDATE()` ]
+	UsuarioBaja varchar(50) [ not null ]
+}
+
+Table Certificado [headercolor: #175e7a] {
+	IDCertificado int [ pk, increment, not null ]
+	IDResultado int [ not null, unique ]
+	FechaEmision date [ not null, default: `GETDATE()` ]
+}
+
+Table ResultadoEvaluacion [headercolor: #175e7a] {
+	IDResultado int [ pk, increment, not null ]
+	IDEvaluacion int [ not null ]
+	IDUsuario int [ not null ]
+	PuntajeObtenido int [ not null ]
+	Fecha date [ not null, default: `GETDATE()` ]
+	Aprobado bit [ not null, default: 0 ]
+}
+
+Table Evaluacion [headercolor: #175e7a] {
+	IDEvaluacion int [ pk, increment, not null ]
+	IDCurso int [ not null ]
+	Titulo varchar(50) [ not null ]
+	PuntajeAprobacion int [ not null, default: 60 ]
+}
+
+Table Inscripcion [headercolor: #175e7a] {
+	IDInscripcion int [ pk, increment, not null ]
+	IDUsuario int [ not null ]
+	IDCurso int [ not null ]
+	FechaInscripcion date [ not null, default: `GETDATE()` ]
+	Completado bit [ not null, default: 0 ]
+
+	indexes {
+		(IDUsuario, IDCurso) [ name: 'IDsInscripciones', unique ]
+	}
+}
+
+Table ProgresoArchivo [headercolor: #175e7a] {
+	IDUsuario int [ pk, not null ]
+	IDArchivo int [ pk, not null ]
+	Completado bit [ not null, default: 0 ]
+}
+
+Table Archivo [headercolor: #175e7a] {
+	IDArchivo int [ pk, increment, not null ]
+	IDCurso int [ not null ]
+	nombre varchar(100) [ not null ]
+	IDtipoArchivo int [ not null ]
+	ruta varchar(255) [ not null ]
+}
+
+Table Curso [headercolor: #175e7a] {
+	IDCurso int [ pk, increment, not null ]
+	IDUsuarioEmpresa int [ not null ]
+	nombre varchar(100) [ not null ]
+	descripcion varchar(250)
+}
+
+Table Suscripcion [headercolor: #175e7a] {
+	IDSuscripcion int [ pk, increment, not null ]
+	IDTipoSuscripcion int [ not null ]
+	IDUsuario int [ not null ]
+	FechaInicio date [ not null, default: `GETDATE()` ]
+	FechaFinalizacion date
+	Activa bit [ not null, default: 1 ]
+}
+
+Table TiposSuscripcion [headercolor: #175e7a] {
+	IDTipoSuscripcion int [ pk, increment, not null ]
+	nombre varchar(50) [ not null ]
+	Detalle varchar(100) [ not null ]
+	Duracion int
+	Precio money [ not null ]
+}
+
+Table USUARIO [headercolor: #175e7a] {
+	IDUsuario int [ pk, increment, not null ]
+	nombre varchar(50) [ not null ]
+	apellido varchar(50)
+	mail varchar(100) [ not null, unique ]
+	contrasena varchar(255) [ not null ]
+	FechaDeInscripcion date [ not null, default: `GETDATE()` ]
+	IDRol int [ not null ]
+}
+
+Table Roles [headercolor: #175e7a] {
+	IDRol int [ pk, increment, not null ]
+	nombre varchar(50) [ not null ]
+	descripcion varchar(255)
+}
+
+Table TiposArchivos [headercolor: #175e7a] {
+	IDTipoArchivo int [ pk, increment, not null ]
+	nombre varchar(100) [ not null ]
+}
+
+Ref fk_Roles_IDRol_USUARIO {
+	Roles.IDRol < USUARIO.IDRol [ delete: no action, update: no action ]
+}
+
+Ref fk_TiposSuscripcion_IDTipoSuscripcion_Suscripcion {
+	TiposSuscripcion.IDTipoSuscripcion < Suscripcion.IDTipoSuscripcion [ delete: no action, update: no action ]
+}
+
+Ref fk_USUARIO_IDUsuario_Suscripcion {
+	USUARIO.IDUsuario < Suscripcion.IDUsuario [ delete: no action, update: no action ]
+}
+
+Ref fk_USUARIO_IDUsuario_Curso {
+	USUARIO.IDUsuario < Curso.IDUsuarioEmpresa [ delete: no action, update: no action ]
+}
+
+Ref fk_Curso_IDCurso_Archivo {
+	Curso.IDCurso < Archivo.IDCurso [ delete: no action, update: no action ]
+}
+
+Ref fk_USUARIO_IDUsuario_ProgresoArchivo {
+	USUARIO.IDUsuario < ProgresoArchivo.IDUsuario [ delete: no action, update: no action ]
+}
+
+Ref fk_Archivo_IDArchivo_ProgresoArchivo {
+	Archivo.IDArchivo < ProgresoArchivo.IDArchivo [ delete: no action, update: no action ]
+}
+
+Ref fk_USUARIO_IDUsuario_Inscripcion {
+	USUARIO.IDUsuario < Inscripcion.IDUsuario [ delete: no action, update: no action ]
+}
+
+Ref fk_Curso_IDCurso_Inscripcion {
+	Curso.IDCurso < Inscripcion.IDCurso [ delete: no action, update: no action ]
+}
+
+Ref fk_Curso_IDCurso_Evaluacion {
+	Curso.IDCurso < Evaluacion.IDCurso [ delete: no action, update: no action ]
+}
+
+Ref fk_Evaluacion_IDEvaluacion_ResultadoEvaluacion {
+	Evaluacion.IDEvaluacion < ResultadoEvaluacion.IDEvaluacion [ delete: no action, update: no action ]
+}
+
+Ref fk_USUARIO_IDUsuario_ResultadoEvaluacion {
+	USUARIO.IDUsuario < ResultadoEvaluacion.IDUsuario [ delete: no action, update: no action ]
+}
+
+Ref fk_ResultadoEvaluacion_IDResultado_Certificado {
+	ResultadoEvaluacion.IDResultado < Certificado.IDResultado [ delete: no action, update: no action ]
+}
+
+Ref fk_TiposArchivos_IDTipoArchivo_Archivo {
+	TiposArchivos.IDTipoArchivo < Archivo.IDtipoArchivo [ delete: no action, update: no action ]
+}
