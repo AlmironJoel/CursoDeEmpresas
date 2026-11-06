@@ -4,6 +4,7 @@ Table HistorialBajas [headercolor: #175e7a] {
 	IDCurso int [ not null ]
 	FechaBaja datetime [ not null, default: `GETDATE()` ]
 	UsuarioBaja varchar(50) [ not null ]
+	motivo varchar(255)
 }
 
 Table Certificado [headercolor: #175e7a] {
@@ -58,7 +59,7 @@ Table Curso [headercolor: #175e7a] {
 	IDCurso int [ pk, increment, not null ]
 	IDUsuarioEmpresa int [ not null ]
 	nombre varchar(100) [ not null ]
-	descripcion varchar(250)
+	descripcion varchar(250) [ not null ]
 }
 
 Table Suscripcion [headercolor: #175e7a] {
@@ -66,26 +67,26 @@ Table Suscripcion [headercolor: #175e7a] {
 	IDTipoSuscripcion int [ not null ]
 	IDUsuario int [ not null ]
 	FechaInicio date [ not null, default: `GETDATE()` ]
-	FechaFinalizacion date
+	FechaFinalizacion date [ not null ]
 	Activa bit [ not null, default: 1 ]
 }
 
 Table TiposSuscripcion [headercolor: #175e7a] {
 	IDTipoSuscripcion int [ pk, increment, not null ]
 	nombre varchar(50) [ not null ]
-	Detalle varchar(100) [ not null ]
-	Duracion int
+	Detalle varchar(100)
+	Duracion int [ not null, default: 30 ]
 	Precio money [ not null ]
 }
 
-Table USUARIO [headercolor: #175e7a] {
+Table usuario [headercolor: #175e7a] {
 	IDUsuario int [ pk, increment, not null ]
 	nombre varchar(50) [ not null ]
-	apellido varchar(50)
-	mail varchar(100) [ not null, unique ]
-	contrasena varchar(255) [ not null ]
+	apellido varchar(50) [ not null ]
+	mail varchar(50) [ not null, unique ]
+	contrasenia varchar(255) [ not null ]
 	FechaDeInscripcion date [ not null, default: `GETDATE()` ]
-	IDRol int [ not null ]
+	IDRol int [ not null, default: 3 ]
 }
 
 Table Roles [headercolor: #175e7a] {
@@ -94,13 +95,13 @@ Table Roles [headercolor: #175e7a] {
 	descripcion varchar(255)
 }
 
-Table TiposArchivos [headercolor: #175e7a] {
+Table TiposArchivo [headercolor: #175e7a] {
 	IDTipoArchivo int [ pk, increment, not null ]
 	nombre varchar(100) [ not null ]
 }
 
 Ref fk_Roles_IDRol_USUARIO {
-	Roles.IDRol < USUARIO.IDRol [ delete: no action, update: no action ]
+	Roles.IDRol < usuario.IDRol [ delete: no action, update: no action ]
 }
 
 Ref fk_TiposSuscripcion_IDTipoSuscripcion_Suscripcion {
@@ -108,11 +109,11 @@ Ref fk_TiposSuscripcion_IDTipoSuscripcion_Suscripcion {
 }
 
 Ref fk_USUARIO_IDUsuario_Suscripcion {
-	USUARIO.IDUsuario < Suscripcion.IDUsuario [ delete: no action, update: no action ]
+	usuario.IDUsuario < Suscripcion.IDUsuario [ delete: no action, update: no action ]
 }
 
 Ref fk_USUARIO_IDUsuario_Curso {
-	USUARIO.IDUsuario < Curso.IDUsuarioEmpresa [ delete: no action, update: no action ]
+	usuario.IDUsuario < Curso.IDUsuarioEmpresa [ delete: no action, update: no action ]
 }
 
 Ref fk_Curso_IDCurso_Archivo {
@@ -120,7 +121,7 @@ Ref fk_Curso_IDCurso_Archivo {
 }
 
 Ref fk_USUARIO_IDUsuario_ProgresoArchivo {
-	USUARIO.IDUsuario < ProgresoArchivo.IDUsuario [ delete: no action, update: no action ]
+	usuario.IDUsuario < ProgresoArchivo.IDUsuario [ delete: no action, update: no action ]
 }
 
 Ref fk_Archivo_IDArchivo_ProgresoArchivo {
@@ -128,7 +129,7 @@ Ref fk_Archivo_IDArchivo_ProgresoArchivo {
 }
 
 Ref fk_USUARIO_IDUsuario_Inscripcion {
-	USUARIO.IDUsuario < Inscripcion.IDUsuario [ delete: no action, update: no action ]
+	usuario.IDUsuario < Inscripcion.IDUsuario [ delete: no action, update: no action ]
 }
 
 Ref fk_Curso_IDCurso_Inscripcion {
@@ -144,7 +145,7 @@ Ref fk_Evaluacion_IDEvaluacion_ResultadoEvaluacion {
 }
 
 Ref fk_USUARIO_IDUsuario_ResultadoEvaluacion {
-	USUARIO.IDUsuario < ResultadoEvaluacion.IDUsuario [ delete: no action, update: no action ]
+	usuario.IDUsuario < ResultadoEvaluacion.IDUsuario [ delete: no action, update: no action ]
 }
 
 Ref fk_ResultadoEvaluacion_IDResultado_Certificado {
@@ -152,5 +153,5 @@ Ref fk_ResultadoEvaluacion_IDResultado_Certificado {
 }
 
 Ref fk_TiposArchivos_IDTipoArchivo_Archivo {
-	TiposArchivos.IDTipoArchivo < Archivo.IDtipoArchivo [ delete: no action, update: no action ]
+	TiposArchivo.IDTipoArchivo < Archivo.IDtipoArchivo [ delete: no action, update: no action ]
 }

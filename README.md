@@ -8,9 +8,7 @@ El sistema permite administrar empresas, usuarios, tipos de suscripción, cursos
 
 ## 👥 Integrantes del Equipo
 * **Almiron, Joel Brian** - Legajo N°: 32378
-* **De Grazia, Mariel Alejandra** - Legajo N°: 25874
-* **Corbacho, Juan Ignacio** - Legajo N°: 32634
-* **Re, Uziel** - Legajo N°: 33080
+
 
 ---
 
@@ -53,7 +51,7 @@ Historial y estado de las suscripciones contratadas.
 Cursos publicados por usuarios con perfil Empresa.
 * `IDCurso` (INT, PK, IDENTITY)
 * `IDUsuarioEmpresa` (INT, FK -> Usuario)
-* `nombre` (VARCHAR(50), NOT NULL)
+* `nombre` (VARCHAR(100), NOT NULL)
 * `descripcion` (VARCHAR(250), NOT NULL)
 
 ### 6. TipoArchivo
@@ -118,7 +116,7 @@ Tabla de auditoría para registrar desinscripciones de alumnos.
 ---
 
 ## 🛠️ Estructura del Repositorio
-
+Ejecutar en el siguiente orden:
 * `BD_Cursos.sql`: Script completo de creación de la base de datos, tablas, relaciones y restricciones.
 * `Insert_BD_Cursos.sql`: Datos de prueba para popular las tablas.
-* `Objetos_BD.sql` *(En desarrollo)*: Vistas, Procedimientos Almacenados, Triggers y Funciones.
+* `Objetos_BD.sql` : Vistas, Procedimientos Almacenados, Triggers y Funciones.

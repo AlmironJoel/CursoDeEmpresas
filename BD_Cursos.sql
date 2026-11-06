@@ -21,15 +21,15 @@ CREATE TABLE HistorialBajas (
     IDUsuario INT NOT NULL,           
     IDCurso INT NOT NULL,             
     FechaBaja DATETIME NOT NULL DEFAULT GETDATE(), 
-    UsuarioSistema VARCHAR(100) NOT NULL DEFAULT SUSER_SNAME(), 
+    UsuarioBaja VARCHAR(100) NOT NULL DEFAULT SUSER_SNAME(), 
     Motivo VARCHAR(255) NULL,         
     CONSTRAINT PK_HistorialBajas PRIMARY KEY (IDHistorial)
 );
 
 CREATE TABLE Roles (
     IDRol INT IDENTITY(1,1) NOT NULL,
-    Nombre VARCHAR(50) NOT NULL,
-    Descripcion VARCHAR(255) NULL
+    nombre VARCHAR(50) NOT NULL,
+    descripcion VARCHAR(255) NULL
 
     CONSTRAINT PK_Roles PRIMARY KEY(IDRol),
     CONSTRAINT UQ_Roles_nombre UNIQUE (nombre)
@@ -40,7 +40,7 @@ CREATE TABLE TipoSuscripcion (
     nombre VARCHAR(50) NOT NULL,
     detalle VARCHAR(100) NULL,
     duracion INT NOT NULL DEFAULT 30,
-    precio INT NOT NULL
+    precio MONEY NOT NULL
 
     CONSTRAINT PK_TipoSuscripcion PRIMARY KEY (IDTipoSuscripcion),
     CONSTRAINT UQ_TipoSuscripcion_nombre UNIQUE (nombre),
@@ -52,7 +52,7 @@ CREATE TABLE Usuario (
     IDUsuario INT IDENTITY(1,1) NOT NULL,
     nombre VARCHAR(50) NOT NULL,
     apellido VARCHAR(50) NOT NULL,
-    email VARCHAR(50) NOT NULL,
+    mail VARCHAR(50) NOT NULL,
     contrasenia VARCHAR(50) NOT NULL,
     fechaDeInscripcion DATE NOT NULL DEFAULT GETDATE(),
     IDRol INT NOT NULL DEFAULT 3
@@ -81,7 +81,7 @@ CREATE TABLE Suscripcion (
 CREATE TABLE Curso (
     IDCurso INT IDENTITY(1,1) NOT NULL,
     IDUsuarioEmpresa INT NOT NULL,
-    nombre VARCHAR (50) NOT NULL,
+    nombre VARCHAR (100) NOT NULL,
     descripcion VARCHAR (250) NOT NULL
 
     CONSTRAINT PK_Curso PRIMARY KEY(IDCurso),
@@ -98,7 +98,7 @@ CREATE TABLE TipoArchivo (
 CREATE TABLE Archivo (
     IDArchivo INT IDENTITY(1,1) NOT NULL,
     IDCurso INT NOT NULL,
-    nombre VARCHAR(50) NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
     IDTipoArchivo INT NOT NULL,
     ruta VARCHAR (255) NOT NULL
     CONSTRAINT PK_Archivo PRIMARY KEY(IDArchivo),
@@ -120,7 +120,7 @@ CREATE TABLE ProgresoArchivo (
 CREATE TABLE Evaluacion (
     IDEvaluacion INT IDENTITY(1,1) NOT NULL,
     IDCurso INT NOT NULL,
-    titulo VARCHAR(50),
+    titulo VARCHAR(50) NOT NULL,
     PuntajeAprobacion INT NOT NULL DEFAULT 0
 
     CONSTRAINT PK_Evaluacion PRIMARY KEY(IDEvaluacion),
