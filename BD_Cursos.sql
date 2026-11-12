@@ -15,7 +15,6 @@ GO
 USE DB_Cursos;
 GO
 
-
 CREATE TABLE HistorialBajas (
     IDHistorial INT IDENTITY(1,1) NOT NULL,
     IDUsuario INT NOT NULL,           

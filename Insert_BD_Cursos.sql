@@ -1,25 +1,24 @@
 USE DB_Cursos;
 GO
 
--- =============================================
 -- 1. ROLES
--- =============================================
+
 INSERT INTO Roles (Nombre, Descripcion) VALUES
 ('Admin', 'Administrador del sistema con acceso total'),
 ('Empresa', 'Usuario corporativo que publica y gestiona cursos'),
 ('Alumno', 'Usuario estudiante que realiza capacitaciones');
 
--- =============================================
+
 -- 2. TIPOS DE SUSCRIPCIÓN
--- =============================================
+
 INSERT INTO TipoSuscripcion (nombre, detalle, duracion, precio) VALUES
 ('Gratuito', 'Acceso de prueba limitado sin certificado', 30, 0),
 ('Plus Mensual', 'Acceso ilimitado a todos los cursos por un mes', 30, 15000),
 ('Pro Anual', 'Acceso total y prioridad en emisión de certificados por un año', 365, 120000);
 
--- =============================================
+
 -- 3. USUARIOS (Empresas, Alumnos y Admin)
--- =============================================
+
 -- IDs 1 al 11: Empresas (Rol ID = 2)
 INSERT INTO Usuario (nombre, apellido, email, contrasenia, IDRol) VALUES
 ('TechCorp', 'Argentina', 'contacto@techcorp.com', 'Admin1234', 2),
@@ -63,22 +62,41 @@ INSERT INTO Usuario (nombre, apellido, email, contrasenia, IDRol) VALUES
 
 -- ID 36: Administrador (Rol ID = 1)
 INSERT INTO Usuario (nombre, apellido, email, contrasenia, IDRol) VALUES
-('Admin', 'Principal', 'admin@plataforma.com', 'AdminPass2026', 1);
+('AdminJoel', 'Principal', 'admin@plataforma.com', 'AdminPass2026', 1);
 
--- =============================================
 -- 4. SUSCRIPCIONES
--- =============================================
-INSERT INTO Suscripcion (IDTipoSuscripcion, IDUsuario, fechaDeFinalizacion, activa)
-SELECT 
-    CASE WHEN IDUsuario % 2 = 0 THEN 3 ELSE 2 END, 
-    IDUsuario, 
-    DATEADD(DAY, 60, GETDATE()), 
-    1
-FROM Usuario WHERE IDRol = 3;
 
--- =============================================
+INSERT INTO Suscripcion (IDTipoSuscripcion, IDUsuario, fechaDeFinalizacion, activa)
+SELECT
+    TS.IDTipoSuscripcion,
+    U.IDUsuario,
+    DATEADD(DAY, TS.duracion, CAST(GETDATE() AS DATE)),
+    1
+FROM Usuario U
+INNER JOIN TipoSuscripcion TS
+    ON TS.nombre = CASE WHEN U.IDUsuario % 2 = 0 THEN 'Pro Anual' ELSE 'Plus Mensual' END
+WHERE U.IDRol = 3;
+
+UPDATE S
+SET IDTipoSuscripcion = TS.IDTipoSuscripcion,
+    fechaDeFinalizacion = DATEADD(DAY, TS.duracion, CAST(GETDATE() AS DATE))
+FROM Suscripcion S
+CROSS JOIN TipoSuscripcion TS
+WHERE TS.nombre = 'Gratuito'
+  AND S.IDUsuario IN (30, 31, 32);
+
+-- Alumno 33: suscripción por vencer (faltan 5 días).
+UPDATE Suscripcion
+SET fechaDeFinalizacion = DATEADD(DAY, 5, CAST(GETDATE() AS DATE))
+WHERE IDUsuario = 33;
+
+-- Alumno 35: suscripción inactiva (para que ell SP de inscripción debe rechazarlo).
+UPDATE Suscripcion
+SET activa = 0
+WHERE IDUsuario = 35;
+
 -- 5. CURSOS (Publicados por Usuarios-Empresa)
--- =============================================
+
 INSERT INTO Curso (IDUsuarioEmpresa, nombre, descripcion) VALUES
 (1, 'JavaScript Inicial', 'Aprende los fundamentos del desarrollo web dinámico desde cero.'),
 (1, 'React JS y Redux', 'Desarrollo de aplicaciones SPA avanzadas y gestión de estado.'),
@@ -109,23 +127,23 @@ INSERT INTO Curso (IDUsuarioEmpresa, nombre, descripcion) VALUES
 (11, 'Kanban Avanzado', 'Flujos de trabajo eficientes'),
 (11, 'Product Owner', 'Gestión de backlog y stakeholders');
 
--- =============================================
 -- 6. TIPOS DE ARCHIVO
--- =============================================
+
 INSERT INTO TipoArchivo (nombre) VALUES
 ('PDF'),
 ('DOCX'),
 ('MP4'),
 ('ZIP');
 
--- =============================================
--- 7. ARCHIVOS DE ESTUDIO (Ampliados para más cursos)
--- =============================================
+
+-- 7. ARCHIVOS DE ESTUDIO
+
+-- El nombre, la ruta y el tipo de cada archivo deben coincidir en formato, pero no hay nada que verifique si le mandas otra cosa.
 INSERT INTO Archivo (IDCurso, nombre, IDTipoArchivo, ruta) VALUES
 (1, '01_Introduccion_JS.mp4', 3, 'https://cdn.cursos.com/c1/intro_js.mp4'),
 (1, 'Guia_Ejercicios_JS.pdf', 1, 'https://cdn.cursos.com/c1/guia1.pdf'),
 (2, 'React_Components.mp4', 3, 'https://cdn.cursos.com/c2/react_comp.mp4'),
-(3, 'Script_Creacion_Tablas.sql', 2, 'https://cdn.cursos.com/c3/script_tablas.docx'),
+(3, 'Guia_Creacion_Tablas.docx', 2, 'https://cdn.cursos.com/c3/guia_tablas.docx'),
 (3, '01_Teoria_Normalizacion.pdf', 1, 'https://cdn.cursos.com/c3/normalizacion.pdf'),
 (4, 'Pandas_Intro.pdf', 1, 'https://cdn.cursos.com/c4/pandas.pdf'),
 (5, 'Estructura_HTML.mp4', 3, 'https://cdn.cursos.com/c5/html.mp4'),
@@ -136,9 +154,8 @@ INSERT INTO Archivo (IDCurso, nombre, IDTipoArchivo, ruta) VALUES
 (23, 'Machine_Learning_Models.pdf', 1, 'https://cdn.cursos.com/c23/ml_models.pdf'),
 (26, 'Scrum_Guide_2020.pdf', 1, 'https://cdn.cursos.com/c26/scrum_guide.pdf');
 
--- =============================================
--- 8. INSCRIPCIONES (Alineadas con Alumnos IDs 12 a 35)
--- =============================================
+-- 8. INSCRIPCIONES (Alumnos IDs 12 a 35)
+
 INSERT INTO Inscripcion (IDUsuario, IDCurso, completado) VALUES
 (12, 1, 1), (12, 3, 0), (12, 5, 0),
 (13, 2, 1), (13, 8, 1), (13, 11, 0),
@@ -152,10 +169,10 @@ INSERT INTO Inscripcion (IDUsuario, IDCurso, completado) VALUES
 (21, 10, 0), (21, 1, 1), (21, 5, 1),
 (22, 11, 1), (22, 2, 0), (22, 6, 0),
 (23, 12, 0), (23, 3, 1), (23, 7, 1),
-(24, 13, 1), (24, 4, 0), (24, 8, 0),
+(24, 13, 1), (24, 4, 0), (24, 8, 1),
 (25, 14, 0), (25, 5, 1), (25, 9, 1),
 (26, 15, 1), (26, 6, 0), (26, 10, 0),
-(27, 16, 0), (27, 7, 1), (27, 11, 1),
+(27, 16, 0), (27, 7, 1), (27, 11, 0),
 (28, 17, 1), (28, 8, 0), (28, 12, 0),
 (29, 18, 0), (29, 9, 1), (29, 13, 1),
 (30, 19, 1), (30, 10, 0), (30, 14, 0),
@@ -165,12 +182,11 @@ INSERT INTO Inscripcion (IDUsuario, IDCurso, completado) VALUES
 (34, 23, 1), (34, 14, 0), (34, 18, 1),
 (35, 24, 0), (35, 15, 1), (35, 19, 0);
 
--- =============================================
 -- 9. PROGRESO DE ARCHIVOS
--- =============================================
+
 INSERT INTO ProgresoArchivo (IDUsuario, IDArchivo, completado) VALUES
-(12, 1, 1), (12, 2, 1), 
-(13, 3, 1), 
+(12, 1, 1), (12, 2, 1),
+(13, 3, 1),
 (14, 4, 1), (14, 5, 1),
 (15, 6, 1),
 (16, 7, 1),
@@ -178,9 +194,8 @@ INSERT INTO ProgresoArchivo (IDUsuario, IDArchivo, completado) VALUES
 (18, 11, 1),
 (24, 8, 1);
 
--- =============================================
 -- 10. EVALUACIONES
--- =============================================
+
 INSERT INTO Evaluacion (IDCurso, titulo, PuntajeAprobacion) VALUES
 (1, 'Examen Final JavaScript Inicial', 60),
 (2, 'Evaluación de Proyecto React', 70),
@@ -194,34 +209,34 @@ INSERT INTO Evaluacion (IDCurso, titulo, PuntajeAprobacion) VALUES
 (23, 'Modelos de Regresión', 75),
 (26, 'Examen Certificación Scrum', 85);
 
--- =============================================
 -- 11. RESULTADOS DE EVALUACIONES
--- =============================================
--- Resultados para alumnos con completado = 1 en inscripciones
-INSERT INTO ResultadoEvaluacion (IDEvaluacion, IDUsuario, PuntajeObtenido, aprobacion) VALUES
-(1, 12, 85, 1), -- Angel aprobó JS
-(2, 13, 90, 1), -- Maria aprobó React
-(3, 14, 50, 0), -- Joel reprobó SQL
-(4, 15, 78, 1), 
-(5, 16, 95, 1), 
-(6, 24, 82, 1), 
-(7, 27, 40, 0), 
-(8, 17, 88, 1),
-(9, 18, 91, 1),
-(10, 34, 76, 1),
-(11, 26, 65, 0);
 
--- =============================================
+INSERT INTO ResultadoEvaluacion (IDEvaluacion, IDUsuario, PuntajeObtenido, aprobacion)
+SELECT
+    V.IDEvaluacion,
+    V.IDUsuario,
+    V.Puntaje,
+    CASE WHEN V.Puntaje >= E.PuntajeAprobacion THEN 1 ELSE 0 END
+FROM (VALUES
+    (1, 12, 85),   -- Angel aprobó JavaScript
+    (2, 13, 90),   -- Maria aprobó React
+    (3, 14, 50),   -- Joel desaprobó SQL
+    (4, 15, 78),   -- Uziel aprobó Pandas
+    (5, 16, 95),
+    (6, 24, 82),
+    (7, 27, 40),
+    (8, 17, 88),
+    (9, 18, 91),
+    (10, 34, 76),
+    (11, 20, 65)   -- desaprobó Scrum (el alumno 20 está inscripto en ese curso)
+) AS V(IDEvaluacion, IDUsuario, Puntaje)
+INNER JOIN Evaluacion E ON E.IDEvaluacion = V.IDEvaluacion;
+
+
 -- 12. CERTIFICADOS
--- =============================================
--- Solo se emiten para los resultados aprobados (IDs 1, 2, 4, 5, 6, 8, 9, 10)
-INSERT INTO Certificado (IDResultado) VALUES
-(1), 
-(2), 
-(4), 
-(5), 
-(6), 
-(8), 
-(9), 
-(10);
-GO
+
+INSERT INTO Certificado (IDResultado)
+SELECT R.IDResultado
+FROM ResultadoEvaluacion R
+WHERE R.aprobacion = 1
+  AND NOT EXISTS (SELECT 1 FROM Certificado C WHERE C.IDResultado = R.IDResultado);
