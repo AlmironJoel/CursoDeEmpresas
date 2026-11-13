@@ -57,7 +57,7 @@ CREATE TABLE Usuario (
     IDRol INT NOT NULL DEFAULT 3
 
     CONSTRAINT PK_Usuario PRIMARY KEY (IDUsuario),
-    CONSTRAINT UQ_Usuario_email UNIQUE (email),
+    CONSTRAINT UQ_Usuario_email UNIQUE (mail),
     CONSTRAINT FK_Usuario_Rol FOREIGN KEY (IDRol) REFERENCES Roles (IDRol),
     CONSTRAINT CK_Usuario_contrasenia CHECK (LEN(contrasenia) > 5)
 );

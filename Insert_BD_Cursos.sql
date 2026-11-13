@@ -20,7 +20,7 @@ INSERT INTO TipoSuscripcion (nombre, detalle, duracion, precio) VALUES
 -- 3. USUARIOS (Empresas, Alumnos y Admin)
 
 -- IDs 1 al 11: Empresas (Rol ID = 2)
-INSERT INTO Usuario (nombre, apellido, email, contrasenia, IDRol) VALUES
+INSERT INTO Usuario (nombre, apellido, mail, contrasenia, IDRol) VALUES
 ('TechCorp', 'Argentina', 'contacto@techcorp.com', 'Admin1234', 2),
 ('Sistemas', 'Global', 'info@sistemasglobal.com', 'Sistemas2026', 2),
 ('DataAcademy', 'LATAM', 'hola@dataacademy.io', 'DataSecure99', 2),
@@ -34,7 +34,7 @@ INSERT INTO Usuario (nombre, apellido, email, contrasenia, IDRol) VALUES
 ('AgilePath', 'Coaching', 'hello@agilepath.com', 'Agile2026', 2);
 
 -- IDs 12 al 35: Alumnos (Rol ID = 3)
-INSERT INTO Usuario (nombre, apellido, email, contrasenia, IDRol) VALUES
+INSERT INTO Usuario (nombre, apellido, mail, contrasenia, IDRol) VALUES
 ('Angel', 'Simon', 'AngelS@gmail.com', '1223334444', 3),
 ('Maria', 'De Grazia', 'mariag@utn.com.ar', 'Pass12345', 3),
 ('Joel', 'Almiron', 'brian_joel@utn.com.ar', 'ClaveSegura1', 3),
@@ -61,7 +61,7 @@ INSERT INTO Usuario (nombre, apellido, email, contrasenia, IDRol) VALUES
 ('Delfina', 'Acosta', 'dacosta@gmail.com', 'Pass1234', 3);
 
 -- ID 36: Administrador (Rol ID = 1)
-INSERT INTO Usuario (nombre, apellido, email, contrasenia, IDRol) VALUES
+INSERT INTO Usuario (nombre, apellido, mail, contrasenia, IDRol) VALUES
 ('AdminJoel', 'Principal', 'admin@plataforma.com', 'AdminPass2026', 1);
 
 -- 4. SUSCRIPCIONES

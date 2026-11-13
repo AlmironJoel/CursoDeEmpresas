@@ -67,7 +67,7 @@ CREATE OR ALTER VIEW VW_ESTADO_SUSCRIPCIONES AS
 SELECT
     U.IDUsuario,
     U.nombre + ' ' + U.apellido AS nombreUsuario,
-    U.email,
+    U.mail,
     TS.nombre AS tipoSuscripcion,
     TS.precio,
     S.fechaDeInscripcion AS fechaInicio,
@@ -84,7 +84,7 @@ INNER JOIN TipoSuscripcion TS ON TS.IDTipoSuscripcion = S.IDTipoSuscripcion
 WHERE S.activa = 1;
 
 GO
-SELECT * FROM VW_ESTADO_SUSCRIPCIONES
+
 
 GO
 CREATE OR ALTER PROCEDURE SP_REGISTRAR_INSCRIPCION(
@@ -248,5 +248,3 @@ AS BEGIN
     END CATCH
 END
 GO
-
-SELECT * FROM TipoSuscripcion
